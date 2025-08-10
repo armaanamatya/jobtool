@@ -1,0 +1,4 @@
+1. board when i can see all the jobs i appleid for (scraped through my email), from swelist (email), simplify github and ouchacs github
+2. sidebar to see jobs of every status
+3. filter to see jobs from dates posted
+4. linkedin scraper for sending messages to recruiters

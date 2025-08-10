@@ -60,9 +60,9 @@ A personal job application tracking system that automatically scrapes job applic
   - Gmail API or IMAP integration
   - Email parsing and classification
   - Cron job for daily scraping (node-cron)
-- **Database**: SQLite or PostgreSQL
-  - Jobs table (id, company, position, status, date_applied, etc.)
-  - Emails table (raw email data, processed status)
+- **Database**: MongoDB Atlas (Cloud)
+  - Jobs collection (company, position, status, dateApplied, etc.)
+  - Emails collection (raw email data, processed status)
 - **API Endpoints**:
   - `GET /jobs` - Fetch all jobs
   - `PUT /jobs/:id` - Update job status
@@ -110,34 +110,39 @@ const emailPatterns = {
 
 ## Data Model
 
-### Jobs Table
-```sql
-CREATE TABLE jobs (
-  id INTEGER PRIMARY KEY,
-  company VARCHAR(255) NOT NULL,
-  position VARCHAR(255) NOT NULL,
-  status VARCHAR(50) DEFAULT 'applied',
-  date_applied DATE NOT NULL,
-  last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  email_thread_id VARCHAR(255),
-  notes TEXT,
-  salary_range VARCHAR(100),
-  location VARCHAR(255)
-);
+### Jobs Collection (MongoDB)
+```javascript
+const jobSchema = {
+  _id: ObjectId,
+  company: String, // required, trimmed
+  position: String, // required, trimmed
+  status: String, // enum: ['applied', 'oa_round', 'interview', 'rejected', 'offer', 'ghosted']
+  dateApplied: Date, // required, default: now
+  lastUpdated: Date, // auto-updated on save
+  emailThreadId: String, // unique, sparse
+  notes: String,
+  salaryRange: String,
+  location: String,
+  createdAt: Date,
+  updatedAt: Date
+}
 ```
 
-### Emails Table
-```sql
-CREATE TABLE emails (
-  id INTEGER PRIMARY KEY,
-  job_id INTEGER REFERENCES jobs(id),
-  email_id VARCHAR(255) UNIQUE,
-  subject VARCHAR(500),
-  sender VARCHAR(255),
-  content TEXT,
-  received_date TIMESTAMP,
-  processed BOOLEAN DEFAULT FALSE
-);
+### Emails Collection (MongoDB)
+```javascript
+const emailSchema = {
+  _id: ObjectId,
+  jobId: ObjectId, // reference to Job document
+  emailId: String, // unique, required
+  subject: String, // required, max 500 chars
+  sender: String, // required
+  content: String, // required
+  receivedDate: Date, // required
+  processed: Boolean, // default: false
+  classification: String, // enum: ['application', 'assessment', 'interview', 'rejection', 'offer', 'unknown']
+  createdAt: Date,
+  updatedAt: Date
+}
 ```
 
 ## User Stories
@@ -160,7 +165,7 @@ CREATE TABLE emails (
 - Basic email scraping setup
 - Simple React dashboard with job cards
 - Manual status updates
-- SQLite database
+- MongoDB Atlas database setup
 
 ### Phase 2: Enhancement (Week 3)
 - Automated email classification

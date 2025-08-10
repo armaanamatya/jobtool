@@ -1,0 +1,85 @@
+import React from 'react';
+import { useDraggable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
+import { Job } from '../types';
+
+interface JobCardProps {
+  job: Job;
+}
+
+const JobCard: React.FC<JobCardProps> = ({ job }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useDraggable({
+    id: job._id,
+  });
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+  };
+
+  const getDaysSinceApplication = () => {
+    const now = new Date();
+    const applied = new Date(job.dateApplied);
+    const diffTime = Math.abs(now.getTime() - applied.getTime());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  const getStatusColor = () => {
+    const colors = {
+      applied: 'border-blue-400',
+      oa_round: 'border-yellow-400',
+      interview: 'border-purple-400',
+      offer: 'border-green-400',
+      rejected: 'border-red-400',
+      ghosted: 'border-gray-400',
+    };
+    return colors[job.status] || 'border-gray-300';
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      className={`bg-white rounded-lg shadow-sm border-2 ${getStatusColor()} p-4 cursor-grab hover:shadow-md transition-shadow ${
+        isDragging ? 'opacity-50 rotate-5' : ''
+      }`}
+    >
+      <div className="mb-3">
+        <h3 className="font-semibold text-lg text-gray-900 mb-1">{job.company}</h3>
+        <p className="text-gray-600 text-sm">{job.position}</p>
+      </div>
+      
+      {job.location && (
+        <p className="text-xs text-gray-500 mb-2">{job.location}</p>
+      )}
+      
+      {job.salaryRange && (
+        <p className="text-xs text-green-600 font-medium mb-2">{job.salaryRange}</p>
+      )}
+      
+      <div className="flex justify-between items-center text-xs text-gray-500 mb-2">
+        <span>Applied: {new Date(job.dateApplied).toLocaleDateString()}</span>
+        <span className="bg-gray-100 px-2 py-1 rounded-full">
+          {getDaysSinceApplication()} days ago
+        </span>
+      </div>
+      
+      {job.notes && (
+        <div className="mt-3 p-2 bg-gray-50 rounded text-xs text-gray-600">
+          {job.notes}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default JobCard;

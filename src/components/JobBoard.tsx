@@ -39,7 +39,7 @@ const MOCK_JOBS: Job[] = [
 
 const JobBoard: React.FC = () => {
   const [jobs, setJobs] = useState<Job[]>(MOCK_JOBS);
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(['applied', 'oa_round', 'interview', 'offer', 'rejected', 'ghosted']);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(['posted', 'applied', 'oa_round', 'interview', 'offer', 'rejected', 'ghosted']);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
@@ -70,7 +70,7 @@ const JobBoard: React.FC = () => {
   };
 
   const handleSelectAllStatuses = () => {
-    setSelectedStatuses(['applied', 'oa_round', 'interview', 'offer', 'rejected', 'ghosted']);
+    setSelectedStatuses(['posted', 'applied', 'oa_round', 'interview', 'offer', 'rejected', 'ghosted']);
   };
 
   const handleClearAllStatuses = () => {

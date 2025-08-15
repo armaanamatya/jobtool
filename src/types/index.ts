@@ -2,8 +2,9 @@ export interface Job {
   _id: string;
   company: string;
   position: string;
-  status: 'applied' | 'oa_round' | 'interview' | 'rejected' | 'offer' | 'ghosted';
-  dateApplied: string;
+  status: 'posted' | 'applied' | 'oa_round' | 'interview' | 'rejected' | 'offer' | 'ghosted';
+  datePosted: string;
+  dateApplied?: string;
   lastUpdated: string;
   emailThreadId?: string;
   notes?: string;
@@ -13,6 +14,7 @@ export interface Job {
 
 export interface JobStats {
   total: number;
+  posted: number;
   applied: number;
   oa_round: number;
   interview: number;

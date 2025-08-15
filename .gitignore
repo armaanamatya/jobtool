@@ -80,3 +80,4 @@ temp/
 
 # Local configuration files
 .cursor/
+*.md

@@ -13,13 +13,16 @@ const jobSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['applied', 'oa_round', 'interview', 'rejected', 'offer', 'ghosted'],
-    default: 'applied'
+    enum: ['posted', 'applied', 'oa_round', 'interview', 'rejected', 'offer', 'ghosted'],
+    default: 'posted'
+  },
+  datePosted: {
+    type: Date,
+    required: true
   },
   dateApplied: {
     type: Date,
-    required: true,
-    default: Date.now
+    required: false
   },
   lastUpdated: {
     type: Date,

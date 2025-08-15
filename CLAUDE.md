@@ -42,7 +42,8 @@ interface Job {
   company: string;
   position: string;
   status: 'posted' | 'applied' | 'oa_round' | 'interview' | 'rejected' | 'offer' | 'ghosted';
-  dateApplied: string;
+  datePosted: string;
+  dateApplied?: string;
   lastUpdated: string;
   emailThreadId?: string;
   notes?: string;
@@ -67,8 +68,9 @@ interface Job {
 
 ### Database Integration
 - **MongoDB schemas** defined in `/models/` for Job and Email entities
+- **Job model** includes `datePosted` (required) and `dateApplied` (optional) to separate posting date from application date
 - **Email processing** designed to update job statuses automatically
-- **Database connection** configured via environment variables
+- **Database connection** configured via environment variables (`MONGODB_URI`)
 
 ## Current Development Status
 
@@ -83,6 +85,7 @@ interface Job {
 - GitHub repository scraping
 - Automated cron job scheduling
 - Backend-frontend integration
+- TypeScript configuration file (tsconfig.json)
 
 ## Data Sources and Automation Goals
 
@@ -95,3 +98,12 @@ interface Job {
 - Daily scraping of new job postings
 - Automatic email parsing for application lifecycle tracking  
 - Date filtering for posted dates, application dates, and status change dates
+
+## Environment Setup
+
+**Required Environment Variables:**
+- `MONGODB_URI` - MongoDB connection string for database access
+
+**Missing Configuration:**
+- TypeScript configuration file (`tsconfig.json`) needs to be created for proper TypeScript compilation
+- Environment variables file (`.env`) should be configured for local development

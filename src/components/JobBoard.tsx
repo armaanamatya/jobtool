@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { DndContext, DragEndEvent, closestCorners } from '@dnd-kit/core';
-import StatusColumn from './StatusColumn.tsx';
+import React, { useState, useMemo } from 'react';
+import StatusFilterSidebar from './StatusFilterSidebar.tsx';
+import DateFilter from './DateFilter.tsx';
+import JobCard from './JobCard.tsx';
 import { Job } from '../types';
 
 const MOCK_JOBS: Job[] = [
@@ -35,60 +36,96 @@ const MOCK_JOBS: Job[] = [
   }
 ];
 
-const STATUS_COLUMNS = [
-  { id: 'applied', title: 'Applied', color: 'bg-blue-100 border-blue-300' },
-  { id: 'oa_round', title: 'OA Round', color: 'bg-yellow-100 border-yellow-300' },
-  { id: 'interview', title: 'Interview', color: 'bg-purple-100 border-purple-300' },
-  { id: 'offer', title: 'Offer', color: 'bg-green-100 border-green-300' },
-  { id: 'rejected', title: 'Rejected', color: 'bg-red-100 border-red-300' },
-  { id: 'ghosted', title: 'Ghosted', color: 'bg-gray-100 border-gray-300' },
-];
 
 const JobBoard: React.FC = () => {
   const [jobs, setJobs] = useState<Job[]>(MOCK_JOBS);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(['posted', 'applied', 'oa_round', 'interview', 'offer', 'rejected', 'ghosted']);
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    
-    if (!over || active.id === over.id) return;
-    
-    const jobId = active.id as string;
-    const newStatus = over.id as Job['status'];
-    
-    setJobs(prevJobs => 
-      prevJobs.map(job => 
-        job._id === jobId 
-          ? { ...job, status: newStatus, lastUpdated: new Date().toISOString() }
-          : job
-      )
+
+  const filteredJobs = useMemo(() => {
+    return jobs.filter(job => {
+      const matchesStatus = selectedStatuses.includes(job.status);
+      
+      if (!startDate && !endDate) return matchesStatus;
+      
+      const jobDate = new Date(job.dateApplied);
+      const start = startDate ? new Date(startDate) : null;
+      const end = endDate ? new Date(endDate) : null;
+      
+      const matchesDate = (!start || jobDate >= start) && (!end || jobDate <= end);
+      
+      return matchesStatus && matchesDate;
+    });
+  }, [jobs, selectedStatuses, startDate, endDate]);
+
+
+  const handleStatusToggle = (status: string) => {
+    setSelectedStatuses(prev => 
+      prev.includes(status)
+        ? prev.filter(s => s !== status)
+        : [...prev, status]
     );
   };
 
-  const getJobsByStatus = (status: Job['status']) => {
-    return jobs.filter(job => job.status === status);
+  const handleSelectAllStatuses = () => {
+    setSelectedStatuses(['posted', 'applied', 'oa_round', 'interview', 'offer', 'rejected', 'ghosted']);
+  };
+
+  const handleClearAllStatuses = () => {
+    setSelectedStatuses([]);
+  };
+
+  const handleClearDates = () => {
+    setStartDate('');
+    setEndDate('');
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Job Application Tracker</h1>
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex h-screen">
+        {/* Sidebar - 20% width */}
+        <div className="w-1/5 min-w-64">
+          <StatusFilterSidebar
+            jobs={jobs}
+            selectedStatuses={selectedStatuses}
+            onStatusToggle={handleStatusToggle}
+            onSelectAll={handleSelectAllStatuses}
+            onClearAll={handleClearAllStatuses}
+          />
+        </div>
         
-        <DndContext
-          collisionDetection={closestCorners}
-          onDragEnd={handleDragEnd}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-            {STATUS_COLUMNS.map(column => (
-              <StatusColumn
-                key={column.id}
-                id={column.id}
-                title={column.title}
-                jobs={getJobsByStatus(column.id as Job['status'])}
-                className={column.color}
-              />
-            ))}
+        {/* Main Content - 80% width */}
+        <div className="flex-1 p-6 overflow-y-auto">
+          <div className="max-w-7xl">
+            <h1 className="text-3xl font-bold text-gray-900 mb-6">Job Application Tracker</h1>
+            
+            <DateFilter
+              startDate={startDate}
+              endDate={endDate}
+              onStartDateChange={setStartDate}
+              onEndDateChange={setEndDate}
+              onClearDates={handleClearDates}
+            />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredJobs.map(job => (
+                <JobCard
+                  key={job._id}
+                  job={job}
+                />
+              ))}
+            </div>
+            
+            {filteredJobs.length === 0 && (
+              <div className="text-center py-12 text-gray-500">
+                <p className="text-lg">No jobs match your current filters.</p>
+                <p className="text-sm mt-2">Try adjusting your status or date filters.</p>
+              </div>
+            )}
           </div>
-        </DndContext>
+        </div>
       </div>
     </div>
   );

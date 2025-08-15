@@ -1,7 +1,5 @@
-1. board when i can see all the jobs i applied for: 
+1. board where i can see all the jobs posted: 
  - including scraped through my email (i applied manually)
- -  from swelist (email), 
+ -  from swelist (email: noreply@swelist.com), 
  - [Scraped from github] simplify github and ouchacs github
-2. sidebar to see jobs of every status
-3. filter to see jobs from dates posted
-4. linkedin scraper for sending messages to recruiters
+2. linkedin scraper for sending messages to recruiters

@@ -49,6 +49,7 @@ interface Job {
   notes?: string;
   salaryRange?: string;
   location?: string;
+  applicationUrl?: string;
 }
 ```
 
@@ -93,6 +94,13 @@ interface Job {
 - SWEList email notifications (noreply@swelist.com)
 - GitHub repos: SimplifyJobs/Summer2026-Internships, vanshb03/Summer2026-Internships
 - Email monitoring for application status updates (OA invitations, rejections, offers)
+
+**SWEList Email Format:**
+- Daily emails with subject: "X New Internships Posted Today"
+- Each job listing contains: Company name, position title, and clickable link to Simplify application page
+- Links follow pattern: company links to Simplify job posting URLs
+- Jobs are listed in format: "Company: Position Title Link"
+- Email includes promotional content and Simplify platform integration
 
 **Automation Features:**
 - Daily scraping of new job postings

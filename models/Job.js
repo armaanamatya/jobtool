@@ -44,6 +44,10 @@ const jobSchema = new mongoose.Schema({
   location: {
     type: String,
     trim: true
+  },
+  applicationUrl: {
+    type: String,
+    trim: true
   }
 }, {
   timestamps: true

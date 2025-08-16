@@ -80,4 +80,25 @@ temp/
 
 # Local configuration files
 .cursor/
-*.md
+
+# Google OAuth credentials and tokens (CRITICAL - contains sensitive data)
+client_secret_*.json
+token.json
+credentials.json
+
+# Debug and temporary files
+debug_email.html
+*.debug
+*.tmp
+
+# Database exports/backups
+*.dump
+*.sql
+database_backup/
+
+# Email scraper logs
+scraper_logs/
+*.scraper.log
+
+# MongoDB connection logs
+mongodb.log

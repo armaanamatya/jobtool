@@ -7,4 +7,4 @@ the goal is :
 i can see all jobs posted/scraped from swelist (email), and simplify github (https://github.com/SimplifyJobs/Summer2026-Internships) and ouckah github (https://github.com/vanshb03/Summer2026-Internships)
 and it can also scrape my email to know if I applied to the jobs/ if i got the OA, if i got rejected. The date filter should be for seeing when i applied, when teh job was posted/scraped, wehn the OA came in, etc.
 
-this application is a job tracker application which updates everyday and automatically scrapes from my email and github links. 
+this application is a job tracker application which updates everyday and automatically scrapes from my email and github links.  

@@ -10,6 +10,7 @@ export interface Job {
   notes?: string;
   salaryRange?: string;
   location?: string;
+  applicationUrl?: string;
 }
 
 export interface JobStats {

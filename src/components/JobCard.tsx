@@ -25,6 +25,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
   };
 
   const getDaysSinceApplication = () => {
+    if (!job.dateApplied) return 0;
     const now = new Date();
     const applied = new Date(job.dateApplied);
     const diffTime = Math.abs(now.getTime() - applied.getTime());
@@ -33,6 +34,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
 
   const getStatusColor = () => {
     const colors = {
+      posted: 'border-indigo-400',
       applied: 'border-blue-400',
       oa_round: 'border-yellow-400',
       interview: 'border-purple-400',
@@ -67,11 +69,25 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
       )}
       
       <div className="flex justify-between items-center text-xs text-gray-500 mb-2">
-        <span>Applied: {new Date(job.dateApplied).toLocaleDateString()}</span>
-        <span className="bg-gray-100 px-2 py-1 rounded-full">
-          {getDaysSinceApplication()} days ago
-        </span>
+        <span>Posted: {new Date(job.datePosted).toLocaleDateString()}</span>
+        {job.dateApplied && (
+          <span className="bg-gray-100 px-2 py-1 rounded-full">
+            Applied {getDaysSinceApplication()} days ago
+          </span>
+        )}
       </div>
+      
+      {job.applicationUrl && (
+        <a
+          href={job.applicationUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center text-xs text-blue-600 hover:text-blue-800 font-medium mt-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          Apply on Simplify →
+        </a>
+      )}
       
       {job.notes && (
         <div className="mt-3 p-2 bg-gray-50 rounded text-xs text-gray-600">

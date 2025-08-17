@@ -102,3 +102,6 @@ scraper_logs/
 
 # MongoDB connection logs
 mongodb.log
+
+# Scraper log files
+scraper.log

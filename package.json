@@ -7,7 +7,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "server": "node server.js",
+    "scraper": "node scripts/runScraper.js",
+    "scheduler": "node scripts/startScheduler.js",
+    "dev": "concurrently \"npm run server\" \"npm start\""
   },
   "repository": {
     "type": "git",

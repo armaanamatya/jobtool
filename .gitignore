@@ -102,3 +102,47 @@ scraper_logs/
 
 # MongoDB connection logs
 mongodb.log
+
+# Scraper log files
+scraper.log
+
+# Additional security items
+.env.backup
+.env.example.local
+config.json
+secrets/
+private/
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Backup files that might contain sensitive data
+backup/
+backups/
+*.backup
+*.bak
+
+# Email content dumps (might contain PII)
+emails/
+email_dumps/
+raw_emails/
+
+# Database connection strings or dumps
+database.json
+db_config.json
+mongo_dump/
+
+# Any files with credentials in the name
+*credentials*
+*password*
+*secret*
+*auth*
+!routes/
+!services/
+!scripts/
+
+# Accidentally committed sensitive files
+.ssh/
+id_rsa*
+known_hosts

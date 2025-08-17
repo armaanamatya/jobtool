@@ -18,9 +18,8 @@ app.get('/', (req, res) => {
   res.json({ message: 'Job Tracker API is running!' });
 });
 
-// Import routes when they're created
-// app.use('/api/jobs', require('./routes/jobs'));
-// app.use('/api/emails', require('./routes/emails'));
+// Import routes
+app.use('/api/jobs', require('./routes/jobs'));
 
 const PORT = process.env.PORT || 3001;
 

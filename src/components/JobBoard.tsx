@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import StatusFilterSidebar from './StatusFilterSidebar.tsx';
 import DateFilter from './DateFilter.tsx';
 import JobCard from './JobCard.tsx';
@@ -38,11 +38,40 @@ const MOCK_JOBS: Job[] = [
 
 
 const JobBoard: React.FC = () => {
-  const [jobs, setJobs] = useState<Job[]>(MOCK_JOBS);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(['posted', 'applied', 'oa_round', 'interview', 'offer', 'rejected', 'ghosted']);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
+
+  // Fetch jobs from API
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch('http://localhost:3001/api/jobs');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch jobs: ${response.statusText}`);
+        }
+        
+        const jobsData = await response.json();
+        setJobs(jobsData);
+      } catch (err) {
+        console.error('Error fetching jobs:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch jobs');
+        // Fallback to mock data if API fails
+        setJobs(MOCK_JOBS);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, []);
 
   const filteredJobs = useMemo(() => {
     return jobs.filter(job => {
@@ -50,7 +79,8 @@ const JobBoard: React.FC = () => {
       
       if (!startDate && !endDate) return matchesStatus;
       
-      const jobDate = new Date(job.dateApplied);
+      // Use datePosted instead of dateApplied for filtering
+      const jobDate = new Date(job.datePosted);
       const start = startDate ? new Date(startDate) : null;
       const end = endDate ? new Date(endDate) : null;
       
@@ -109,20 +139,43 @@ const JobBoard: React.FC = () => {
               onClearDates={handleClearDates}
             />
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredJobs.map(job => (
-                <JobCard
-                  key={job._id}
-                  job={job}
-                />
-              ))}
-            </div>
-            
-            {filteredJobs.length === 0 && (
-              <div className="text-center py-12 text-gray-500">
-                <p className="text-lg">No jobs match your current filters.</p>
-                <p className="text-sm mt-2">Try adjusting your status or date filters.</p>
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p className="mt-4 text-gray-600">Loading jobs...</p>
               </div>
+            ) : error ? (
+              <div className="text-center py-12 text-red-600">
+                <p className="text-lg">⚠️ Error loading jobs</p>
+                <p className="text-sm mt-2">{error}</p>
+                <p className="text-sm mt-2 text-gray-500">Showing mock data as fallback</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filteredJobs.map(job => (
+                    <JobCard
+                      key={job._id}
+                      job={job}
+                    />
+                  ))}
+                </div>
+                
+                {filteredJobs.length === 0 && jobs.length > 0 && (
+                  <div className="text-center py-12 text-gray-500">
+                    <p className="text-lg">No jobs match your current filters.</p>
+                    <p className="text-sm mt-2">Try adjusting your status or date filters.</p>
+                  </div>
+                )}
+                
+                {jobs.length === 0 && (
+                  <div className="text-center py-12 text-gray-500">
+                    <p className="text-lg">No jobs found in database.</p>
+                    <p className="text-sm mt-2">Run the email scraper to populate jobs.</p>
+                    <p className="text-sm mt-1">Command: <code className="bg-gray-100 px-2 py-1 rounded">node scripts/runScraper.js</code></p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

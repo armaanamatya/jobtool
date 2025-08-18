@@ -4,14 +4,14 @@
   "description": "��#\u0000 \u0000j\u0000o\u0000b\u0000t\u0000o\u0000o\u0000l\u0000\r\u0000 \u0000",
   "main": "index.js",
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set PORT=3000 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "server": "node server.js",
     "scraper": "node scripts/runScraper.js",
     "scheduler": "node scripts/startScheduler.js",
-    "dev": "concurrently \"npm run server\" \"npm start\""
+    "dev": "start_dev.bat"
   },
   "repository": {
     "type": "git",
@@ -59,5 +59,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
   }
 }

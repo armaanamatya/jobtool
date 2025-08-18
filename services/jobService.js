@@ -87,7 +87,7 @@ class JobService {
     try {
       const jobs = await Job.find(query)
         .sort({ datePosted: -1 })
-        .limit(filters.limit || 100);
+        .limit(filters.limit || 1000);
       
       return jobs;
     } catch (error) {

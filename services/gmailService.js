@@ -30,7 +30,32 @@ class GmailService {
         maxResults: maxResults
       });
 
-      return response.data.messages || [];
+      const messages = response.data.messages || [];
+      
+      // Fetch full email content for each message
+      const emails = [];
+      for (const message of messages) {
+        try {
+          const emailData = await this.getEmailContent(message.id);
+          const metadata = this.extractEmailMetadata(emailData);
+          const body = this.extractEmailBody(emailData);
+          
+          emails.push({
+            emailId: message.id,
+            subject: metadata.subject,
+            sender: metadata.from,
+            receivedDate: metadata.date,
+            messageId: metadata.messageId,
+            content: body.text || body.html,
+            htmlContent: body.html,
+            textContent: body.text
+          });
+        } catch (error) {
+          console.error(`Error fetching email ${message.id}:`, error.message);
+        }
+      }
+
+      return emails;
     } catch (error) {
       console.error('Error searching emails:', error.message);
       throw error;

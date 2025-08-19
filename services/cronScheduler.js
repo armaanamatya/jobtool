@@ -1,6 +1,6 @@
 const cron = require('node-cron');
 const EmailScraper = require('./emailScraper');
-const JobLogger = require('./jobLogger');
+const { JobLogger } = require('./jobLogger');
 require('dotenv').config();
 
 class CronScheduler {

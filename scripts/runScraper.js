@@ -1,5 +1,5 @@
 const EmailScraper = require('../services/emailScraper');
-const JobLogger = require('../services/jobLogger');
+const { JobLogger } = require('../services/jobLogger');
 require('dotenv').config();
 
 async function runScraper() {

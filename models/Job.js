@@ -48,7 +48,81 @@ const jobSchema = new mongoose.Schema({
   applicationUrl: {
     type: String,
     trim: true
-  }
+  },
+  statusHistory: [{
+    status: {
+      type: String,
+      enum: ['posted', 'applied', 'oa_round', 'interview', 'rejected', 'offer', 'ghosted'],
+      required: true
+    },
+    date: {
+      type: Date,
+      required: true,
+      default: Date.now
+    },
+    emailId: {
+      type: String,
+      required: false
+    },
+    confidence: {
+      type: Number,
+      min: 0,
+      max: 1,
+      required: false
+    },
+    source: {
+      type: String,
+      enum: ['manual', 'email_automation', 'application_scraper'],
+      default: 'manual'
+    },
+    notes: {
+      type: String,
+      trim: true
+    }
+  }],
+  emailHistory: [{
+    emailId: {
+      type: String,
+      required: true
+    },
+    subject: {
+      type: String,
+      required: true
+    },
+    sender: {
+      type: String,
+      required: true
+    },
+    receivedDate: {
+      type: Date,
+      required: true
+    },
+    emailLink: {
+      type: String,
+      required: false,
+      trim: true
+    },
+    classification: {
+      type: String,
+      enum: ['application', 'assessment', 'interview', 'rejection', 'offer', 'unknown'],
+      required: true
+    },
+    confidence: {
+      type: Number,
+      min: 0,
+      max: 1,
+      required: true
+    },
+    statusUpdate: {
+      type: String,
+      enum: ['posted', 'applied', 'oa_round', 'interview', 'rejected', 'offer', 'ghosted'],
+      required: false
+    },
+    processed: {
+      type: Boolean,
+      default: true
+    }
+  }]
 }, {
   timestamps: true
 });

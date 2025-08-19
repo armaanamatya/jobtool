@@ -1,4 +1,4 @@
-const GmailService = require('../services/gmailService');
+const { GmailService } = require('../services/gmailService');
 
 async function testGmailFetch() {
   console.log('🔍 Testing Gmail service...');

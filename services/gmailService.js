@@ -142,4 +142,4 @@ class GmailService {
   }
 }
 
-module.exports = GmailService;
+module.exports = { GmailService };

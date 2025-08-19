@@ -2,7 +2,8 @@ const fs = require('fs').promises;
 const path = require('path');
 
 class JobLogger {
-  constructor() {
+  constructor(service = 'job_scraper') {
+    this.service = service;
     this.logDir = 'C:/Users/armaa/OneDrive/Desktop/jobtool/job_logs';
     this.ensureLogDirExists();
   }
@@ -210,6 +211,43 @@ ${job.notes ? `- **Notes**: ${job.notes}` : ''}`;
       console.error('Error cleaning up logs:', error.message);
     }
   }
+
+  /**
+   * General purpose logging for email monitoring
+   * @param {string} message - Log message
+   * @param {Object} data - Additional data to log
+   */
+  log(message, data = {}) {
+    const timestamp = new Date().toISOString();
+    const logEntry = {
+      timestamp,
+      service: this.service,
+      level: 'INFO',
+      message,
+      ...data
+    };
+    console.log(`[${timestamp}] [${this.service}] INFO: ${message}`, data);
+  }
+
+  /**
+   * Error logging
+   * @param {string} message - Error message
+   * @param {Error} error - Error object
+   * @param {Object} data - Additional data to log
+   */
+  error(message, error = null, data = {}) {
+    const timestamp = new Date().toISOString();
+    const logEntry = {
+      timestamp,
+      service: this.service,
+      level: 'ERROR',
+      message,
+      error: error ? error.message : null,
+      stack: error ? error.stack : null,
+      ...data
+    };
+    console.error(`[${timestamp}] [${this.service}] ERROR: ${message}`, error, data);
+  }
 }
 
-module.exports = JobLogger;
+module.exports = { JobLogger };

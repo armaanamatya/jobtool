@@ -1,4 +1,4 @@
-const GmailService = require('./gmailService');
+const { GmailService } = require('./gmailService');
 const JobParser = require('./jobParser');
 const JobService = require('./jobService');
 

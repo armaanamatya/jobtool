@@ -1,10 +1,12 @@
 const cron = require('node-cron');
 const EmailScraper = require('./emailScraper');
+const JobLogger = require('./jobLogger');
 require('dotenv').config();
 
 class CronScheduler {
   constructor() {
     this.scraper = new EmailScraper();
+    this.logger = new JobLogger();
     this.isRunning = false;
   }
 
@@ -58,8 +60,18 @@ class CronScheduler {
       console.log('✅ Scheduled scrape completed successfully');
       console.log(`📊 Results: ${results.saved} new jobs, ${results.duplicates} duplicates`);
       
-      // Log to file for monitoring
+      // Enhanced logging with job details
+      if (results.jobsData && results.jobsData.length > 0) {
+        await this.logger.logScrapingResults(results.jobsData, results);
+        console.log(`📄 Created detailed log files for ${results.jobsData.length} jobs`);
+      }
+      
+      // Traditional summary logging
+      await this.logger.logSummary(results);
       await this.logResults(timestamp, results);
+      
+      // Cleanup old logs (keep last 30 days)
+      await this.logger.cleanupOldLogs();
       
     } catch (error) {
       console.error('❌ Scheduled scrape failed:', error.message);

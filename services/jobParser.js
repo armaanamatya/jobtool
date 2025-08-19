@@ -15,7 +15,7 @@ class JobParser {
       internshipParagraphs.each((index, element) => {
         const $p = $(element);
         const $company = $p.find('strong');
-        const $link = $p.find('a[href*="simplify.jobs"]');
+        const $link = $p.find('a'); // Look for ANY link, not just Simplify
         
         if ($company.length > 0 && $link.length > 0) {
           const company = $company.text().replace(':', '').trim();
@@ -41,17 +41,27 @@ class JobParser {
         }
       });
       
-      // Fallback: Look for any Simplify links that weren't caught above
+      // Fallback: If no internship paragraphs found, look for any job-related links
       if (jobs.length === 0) {
-        const allLinks = $('a[href*="simplify.jobs"]');
+        console.log('No internship paragraphs found, trying fallback parsing...');
+        
+        // Look for links that might be job applications
+        const allLinks = $('a[href]');
         
         allLinks.each((index, element) => {
           const $link = $(element);
           const href = $link.attr('href');
           const linkText = $link.text().trim();
           
-          // Skip the promotional Simplify link
-          if (href && !href.includes('copilot') && linkText && linkText !== 'Link to Simplify') {
+          // Skip promotional/unsubscribe links
+          if (href && 
+              !href.includes('copilot') && 
+              !href.includes('unsubscribe') && 
+              !href.includes('github.com') &&
+              linkText && 
+              linkText !== 'Link to Simplify' &&
+              linkText !== 'swelist' &&
+              linkText !== 'Summer2026-Internships') {
             
             // Try to find company name in parent or nearby text
             const $parent = $link.parent();

@@ -10,6 +10,7 @@ const MOCK_JOBS: Job[] = [
     company: 'Google',
     position: 'Software Engineer',
     status: 'applied',
+    datePosted: '2024-01-10',
     dateApplied: '2024-01-15',
     lastUpdated: '2024-01-15',
     location: 'Mountain View, CA',
@@ -20,6 +21,7 @@ const MOCK_JOBS: Job[] = [
     company: 'Meta',
     position: 'Frontend Developer',
     status: 'oa_round',
+    datePosted: '2024-01-05',
     dateApplied: '2024-01-10',
     lastUpdated: '2024-01-20',
     location: 'Menlo Park, CA',
@@ -29,10 +31,32 @@ const MOCK_JOBS: Job[] = [
     company: 'Netflix',
     position: 'Full Stack Engineer',
     status: 'interview',
+    datePosted: '2024-01-03',
     dateApplied: '2024-01-08',
     lastUpdated: '2024-01-25',
     location: 'Los Gatos, CA',
     notes: 'Technical interview scheduled for next week'
+  },
+  {
+    _id: '4',
+    company: 'Apple',
+    position: 'iOS Developer',
+    status: 'posted',
+    datePosted: '2024-01-20',
+    lastUpdated: '2024-01-20',
+    location: 'Cupertino, CA',
+    salaryRange: '$130k - $190k',
+    applicationUrl: 'https://simplify.jobs/c/Apple/12345'
+  },
+  {
+    _id: '5',
+    company: 'Microsoft',
+    position: 'Software Engineer Intern',
+    status: 'posted',
+    datePosted: '2024-01-22',
+    lastUpdated: '2024-01-22',
+    location: 'Redmond, WA',
+    applicationUrl: 'https://simplify.jobs/c/Microsoft/67890'
   }
 ];
 
@@ -112,6 +136,54 @@ const JobBoard: React.FC = () => {
     setEndDate('');
   };
 
+  const handleJobStatusUpdate = async (jobId: string, newStatus: Job['status']) => {
+    try {
+      const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+      const updateData = {
+        status: newStatus,
+        dateApplied: newStatus === 'applied' ? currentDate : undefined
+      };
+
+      const response = await fetch(`http://localhost:3001/api/jobs/${jobId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update job status: ${response.statusText}`);
+      }
+
+      const updatedJob = await response.json();
+      
+      // Update local state with the response from server
+      setJobs(prevJobs => 
+        prevJobs.map(job => 
+          job._id === jobId ? updatedJob : job
+        )
+      );
+    } catch (error) {
+      console.error('Error updating job status:', error);
+      // Fallback to local state update if API fails
+      setJobs(prevJobs => 
+        prevJobs.map(job => 
+          job._id === jobId 
+            ? { 
+                ...job, 
+                status: newStatus, 
+                dateApplied: newStatus === 'applied' && !job.dateApplied 
+                  ? new Date().toISOString().split('T')[0] 
+                  : job.dateApplied,
+                lastUpdated: new Date().toISOString().split('T')[0]
+              }
+            : job
+        )
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex h-screen">
@@ -157,6 +229,7 @@ const JobBoard: React.FC = () => {
                     <JobCard
                       key={job._id}
                       job={job}
+                      onStatusUpdate={handleJobStatusUpdate}
                     />
                   ))}
                 </div>

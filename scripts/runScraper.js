@@ -1,8 +1,10 @@
 const EmailScraper = require('../services/emailScraper');
+const JobLogger = require('../services/jobLogger');
 require('dotenv').config();
 
 async function runScraper() {
   const scraper = new EmailScraper();
+  const logger = new JobLogger();
   
   try {
     // Initialize the scraper
@@ -16,6 +18,15 @@ async function runScraper() {
     
     // Run the scraper
     const results = await scraper.scrapeAndReport(daysBack);
+    
+    // Create enhanced logs if jobs were found
+    if (results.jobsData && results.jobsData.length > 0) {
+      await logger.logScrapingResults(results.jobsData, results);
+      console.log(`📄 Created detailed log files for ${results.jobsData.length} jobs`);
+    }
+    
+    // Create summary log entry
+    await logger.logSummary(results);
     
     // Show final summary
     console.log('\n📋 Final Summary:');

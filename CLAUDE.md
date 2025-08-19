@@ -16,6 +16,13 @@ npm test           # Run React tests
 
 # Backend (when implemented)
 node server.js     # Start Express server
+
+# PM2 Process Management
+pm2 start server.js   # Start server with PM2
+pm2 list            # List all PM2 managed processes
+pm2 monit           # Monitor PM2 processes
+pm2 logs            # View process logs
+pm2 restart all     # Restart all processes
 ```
 
 ## Architecture Overview

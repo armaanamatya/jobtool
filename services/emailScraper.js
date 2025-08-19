@@ -25,7 +25,7 @@ class EmailScraper {
 
       if (emails.length === 0) {
         console.log('ℹ️  No new emails found');
-        return { emails: 0, jobs: 0, saved: 0, duplicates: 0, errors: 0 };
+        return { emails: 0, jobs: 0, saved: 0, duplicates: 0, errors: 0, jobsData: [] };
       }
 
       let allJobs = [];
@@ -71,7 +71,8 @@ class EmailScraper {
         jobs: uniqueJobs.length,
         saved: saveResults.saved,
         duplicates: saveResults.duplicates,
-        errors: saveResults.errors
+        errors: saveResults.errors,
+        jobsData: uniqueJobs // Include the actual job data for logging
       };
 
     } catch (error) {

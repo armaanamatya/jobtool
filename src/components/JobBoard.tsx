@@ -103,8 +103,10 @@ const JobBoard: React.FC = () => {
       
       if (!startDate && !endDate) return matchesStatus;
       
-      // Use datePosted instead of dateApplied for filtering
-      const jobDate = new Date(job.datePosted);
+      // Use dateApplied for filtering - only filter jobs that have been applied to
+      if (!job.dateApplied) return matchesStatus;
+      
+      const jobDate = new Date(job.dateApplied);
       const start = startDate ? new Date(startDate) : null;
       const end = endDate ? new Date(endDate) : null;
       
@@ -184,6 +186,30 @@ const JobBoard: React.FC = () => {
     }
   };
 
+  const handleJobDelete = async (jobId: string, company: string, position: string) => {
+    const isConfirmed = window.confirm(`Are you sure you want to delete the job application for ${position} at ${company}? This action cannot be undone.`);
+    
+    if (!isConfirmed) return;
+
+    try {
+      const response = await fetch(`http://localhost:3001/api/jobs/${jobId}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete job: ${response.statusText}`);
+      }
+
+      // Remove job from local state
+      setJobs(prevJobs => prevJobs.filter(job => job._id !== jobId));
+      
+      console.log(`Job deleted successfully: ${company} - ${position}`);
+    } catch (error) {
+      console.error('Error deleting job:', error);
+      alert(`Failed to delete job: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex h-screen">
@@ -230,6 +256,7 @@ const JobBoard: React.FC = () => {
                       key={job._id}
                       job={job}
                       onStatusUpdate={handleJobStatusUpdate}
+                      onDelete={handleJobDelete}
                     />
                   ))}
                 </div>

@@ -147,3 +147,6 @@ mongo_dump/
 .ssh/
 id_rsa*
 known_hosts
+
+# Documentation files
+documents/

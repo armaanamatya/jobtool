@@ -11,7 +11,7 @@ interface StatusFilterSidebarProps {
 
 const STATUS_CONFIG = [
   { id: 'posted', title: 'Posted', color: 'bg-indigo-100 text-indigo-800 border-indigo-300' },
-  { id: 'applied', title: 'Applied', color: 'bg-blue-100 text-blue-800 border-blue-300' },
+  { id: 'applied', title: 'Applied', color: 'bg-cyan-100 text-cyan-800 border-cyan-600' },
   { id: 'oa_round', title: 'OA Round', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
   { id: 'interview', title: 'Interview', color: 'bg-purple-100 text-purple-800 border-purple-300' },
   { id: 'offer', title: 'Offer', color: 'bg-green-100 text-green-800 border-green-300' },

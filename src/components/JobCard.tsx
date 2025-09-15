@@ -43,15 +43,15 @@ const JobCard: React.FC<JobCardProps> = ({ job, onStatusUpdate, onDelete }) => {
 
   const getStatusColor = () => {
     const colors = {
-      posted: 'border-indigo-400',
-      applied: 'border-blue-400',
-      oa_round: 'border-yellow-400',
-      interview: 'border-purple-400',
-      offer: 'border-green-400',
-      rejected: 'border-red-400',
-      ghosted: 'border-gray-400',
+      posted: 'border-indigo-600',
+      applied: 'border-cyan-600',
+      oa_round: 'border-yellow-500',
+      interview: 'border-purple-600',
+      offer: 'border-green-600',
+      rejected: 'border-red-600',
+      ghosted: 'border-gray-600',
     };
-    return colors[job.status] || 'border-gray-300';
+    return colors[job.status] || 'border-gray-400';
   };
 
   const handleApplyClick = (e: React.MouseEvent) => {
@@ -76,8 +76,13 @@ const JobCard: React.FC<JobCardProps> = ({ job, onStatusUpdate, onDelete }) => {
       {...attributes}
       className={`group bg-white rounded-lg shadow-sm border-2 ${getStatusColor()} p-4 cursor-grab hover:shadow-md transition-shadow ${
         isDragging ? 'opacity-50 rotate-5' : ''
-      }`}
+      } relative`}
     >
+      {job.status === 'applied' && (
+        <div className="absolute -top-2 -right-2 bg-cyan-600 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-white shadow-sm">
+          APPLIED
+        </div>
+      )}
       <div className="mb-3 relative">
         <div className="flex justify-between items-start">
           <div className="flex-1">
@@ -125,10 +130,10 @@ const JobCard: React.FC<JobCardProps> = ({ job, onStatusUpdate, onDelete }) => {
           href={job.applicationUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center text-xs text-blue-600 hover:text-blue-800 font-medium mt-2"
+          className="inline-flex items-center text-xs text-blue-600 hover:text-blue-800 font-medium mt-2 border border-blue-300 hover:border-blue-500 px-2 py-1 rounded transition-colors"
           onClick={handleApplyClick}
         >
-          Apply on Simplify →
+          Apply →
         </a>
       )}
       

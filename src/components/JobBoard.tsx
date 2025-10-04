@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import StatusFilterSidebar from './StatusFilterSidebar.tsx';
 import DateFilter from './DateFilter.tsx';
 import JobCard from './JobCard.tsx';
+import JobDetailsModal from './JobDetailsModal.tsx';
 import { Job } from '../types';
 
 const MOCK_JOBS: Job[] = [
@@ -69,6 +70,7 @@ const JobBoard: React.FC = () => {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
 
   // Fetch jobs from API
@@ -294,6 +296,7 @@ const JobBoard: React.FC = () => {
                       job={job}
                       onStatusUpdate={handleJobStatusUpdate}
                       onDelete={handleJobDelete}
+                      onClick={() => setSelectedJob(job)}
                     />
                   ))}
                 </div>
@@ -317,6 +320,14 @@ const JobBoard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Job Details Modal */}
+      {selectedJob && (
+        <JobDetailsModal
+          job={selectedJob}
+          onClose={() => setSelectedJob(null)}
+        />
+      )}
     </div>
   );
 };

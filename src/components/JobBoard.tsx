@@ -68,6 +68,7 @@ const JobBoard: React.FC = () => {
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(['posted', 'applied', 'oa_round', 'interview', 'offer', 'rejected', 'ghosted']);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
 
   // Fetch jobs from API
@@ -101,10 +102,15 @@ const JobBoard: React.FC = () => {
     return jobs.filter(job => {
       const matchesStatus = selectedStatuses.includes(job.status);
       
-      if (!startDate && !endDate) return matchesStatus;
+      // Search filtering
+      const matchesSearch = !searchQuery || 
+        job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        job.position.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      if (!startDate && !endDate) return matchesStatus && matchesSearch;
       
       // Use dateApplied for filtering - only filter jobs that have been applied to
-      if (!job.dateApplied) return matchesStatus;
+      if (!job.dateApplied) return matchesStatus && matchesSearch;
       
       const jobDate = new Date(job.dateApplied);
       const start = startDate ? new Date(startDate) : null;
@@ -112,9 +118,9 @@ const JobBoard: React.FC = () => {
       
       const matchesDate = (!start || jobDate >= start) && (!end || jobDate <= end);
       
-      return matchesStatus && matchesDate;
+      return matchesStatus && matchesSearch && matchesDate;
     });
-  }, [jobs, selectedStatuses, startDate, endDate]);
+  }, [jobs, selectedStatuses, startDate, endDate, searchQuery]);
 
 
   const handleStatusToggle = (status: string) => {
@@ -228,6 +234,37 @@ const JobBoard: React.FC = () => {
         <div className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-7xl">
             <h1 className="text-3xl font-bold text-gray-900 mb-6">Job Application Tracker</h1>
+            
+            {/* Search Bar */}
+            <div className="mb-6">
+              <div className="relative max-w-md">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search companies and roles..."
+                  className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                />
+                {searchQuery && (
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="text-gray-400 hover:text-gray-600 focus:outline-none"
+                      type="button"
+                    >
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
             
             <DateFilter
               startDate={startDate}

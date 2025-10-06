@@ -91,7 +91,14 @@ class GmailService {
     
     console.log('Searching for emails with query:', query);
     
-    const messages = await this.searchEmails(query, 50);
+    // Get message list only (not full content)
+    const response = await this.gmail.users.messages.list({
+      userId: 'me',
+      q: query,
+      maxResults: 50
+    });
+
+    const messages = response.data.messages || [];
     console.log(`Found ${messages.length} SWEList emails`);
 
     const emails = [];

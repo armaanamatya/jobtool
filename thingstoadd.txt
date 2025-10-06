@@ -6,6 +6,11 @@ scraper for github
 design UI better (calendar, filters, swelist/github/manual/mixed)
 email links???
 
+error:
+editting job
+
+
+
  4. Scraper for SWEList - ✅ DONE
   - Full SWEList email scraping implementation in services/emailScraper.js
   - Daily automated scraping at 4:00 PM CDT via services/cronScheduler.js

@@ -136,6 +136,31 @@ class JobService {
     }
   }
 
+  async updateJob(jobId, updateData = {}) {
+    await this.connectDatabase();
+    
+    try {
+      // Add lastUpdated timestamp
+      updateData.lastUpdated = new Date();
+      
+      const updatedJob = await Job.findByIdAndUpdate(
+        jobId,
+        { $set: updateData },
+        { new: true, runValidators: true }
+      );
+      
+      if (!updatedJob) {
+        throw new Error('Job not found');
+      }
+      
+      console.log(`Job updated: ${updatedJob.company} - ${updatedJob.position}`);
+      return updatedJob;
+    } catch (error) {
+      console.error('Error updating job:', error.message);
+      throw error;
+    }
+  }
+
   async updateJobStatus(jobId, newStatus, additionalData = {}) {
     await this.connectDatabase();
     

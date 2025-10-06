@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Job, StatusHistoryEntry, EmailHistoryEntry } from '../types';
 
 interface JobDetailsModalProps {
   job: Job;
   onClose: () => void;
+  onSave?: (updatedJob: Partial<Job>) => void;
 }
 
-const JobDetailsModal: React.FC<JobDetailsModalProps> = ({ job, onClose }) => {
+const JobDetailsModal: React.FC<JobDetailsModalProps> = ({ job, onClose, onSave }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedJob, setEditedJob] = useState({
+    dateApplied: job.dateApplied || '',
+    notes: job.notes || '',
+    applicationUrl: job.applicationUrl || '',
+    location: job.location || '',
+    salaryRange: job.salaryRange || ''
+  });
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'posted': return 'bg-gray-100 text-gray-800';
@@ -57,6 +66,50 @@ const JobDetailsModal: React.FC<JobDetailsModalProps> = ({ job, onClose }) => {
     }
   };
 
+  const handleSave = () => {
+    if (onSave) {
+      const updates: Partial<Job> = {};
+      
+      // Only include changed fields
+      if (editedJob.dateApplied !== (job.dateApplied || '')) {
+        updates.dateApplied = editedJob.dateApplied || null;
+      }
+      if (editedJob.notes !== (job.notes || '')) {
+        updates.notes = editedJob.notes;
+      }
+      if (editedJob.applicationUrl !== (job.applicationUrl || '')) {
+        updates.applicationUrl = editedJob.applicationUrl;
+      }
+      if (editedJob.location !== (job.location || '')) {
+        updates.location = editedJob.location;
+      }
+      if (editedJob.salaryRange !== (job.salaryRange || '')) {
+        updates.salaryRange = editedJob.salaryRange;
+      }
+
+      onSave(updates);
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditedJob({
+      dateApplied: job.dateApplied || '',
+      notes: job.notes || '',
+      applicationUrl: job.applicationUrl || '',
+      location: job.location || '',
+      salaryRange: job.salaryRange || ''
+    });
+    setIsEditing(false);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setEditedJob(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   return (
     <div 
       className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
@@ -74,14 +127,39 @@ const JobDetailsModal: React.FC<JobDetailsModalProps> = ({ job, onClose }) => {
               {job.status.replace('_', ' ').toUpperCase()}
             </span>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center space-x-2">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleSave}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                Edit
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div className="p-6 space-y-6">
@@ -93,7 +171,16 @@ const JobDetailsModal: React.FC<JobDetailsModalProps> = ({ job, onClose }) => {
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
               <h3 className="text-sm font-medium text-gray-500 mb-2">Date Applied</h3>
-              <p className="text-lg font-semibold text-gray-900">{formatDate(job.dateApplied || '')}</p>
+              {isEditing ? (
+                <input
+                  type="date"
+                  value={editedJob.dateApplied ? new Date(editedJob.dateApplied).toISOString().split('T')[0] : ''}
+                  onChange={(e) => handleInputChange('dateApplied', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              ) : (
+                <p className="text-lg font-semibold text-gray-900">{formatDate(job.dateApplied || '')}</p>
+              )}
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
               <h3 className="text-sm font-medium text-gray-500 mb-2">Last Updated</h3>
@@ -108,25 +195,55 @@ const JobDetailsModal: React.FC<JobDetailsModalProps> = ({ job, onClose }) => {
               <div className="space-y-3">
                 <div>
                   <span className="text-sm font-medium text-gray-500">Location:</span>
-                  <p className="text-gray-900">{job.location || 'Not specified'}</p>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editedJob.location}
+                      onChange={(e) => handleInputChange('location', e.target.value)}
+                      className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter location"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{job.location || 'Not specified'}</p>
+                  )}
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-500">Salary Range:</span>
-                  <p className="text-gray-900">{job.salaryRange || 'Not specified'}</p>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editedJob.salaryRange}
+                      onChange={(e) => handleInputChange('salaryRange', e.target.value)}
+                      className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter salary range"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{job.salaryRange || 'Not specified'}</p>
+                  )}
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-500">Application URL:</span>
-                  {job.applicationUrl ? (
-                    <a
-                      href={job.applicationUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 underline break-all"
-                    >
-                      {job.applicationUrl}
-                    </a>
+                  {isEditing ? (
+                    <input
+                      type="url"
+                      value={editedJob.applicationUrl}
+                      onChange={(e) => handleInputChange('applicationUrl', e.target.value)}
+                      className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter application URL"
+                    />
                   ) : (
-                    <p className="text-gray-900">Not specified</p>
+                    job.applicationUrl ? (
+                      <a
+                        href={job.applicationUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 underline break-all"
+                      >
+                        {job.applicationUrl}
+                      </a>
+                    ) : (
+                      <p className="text-gray-900">Not specified</p>
+                    )
                   )}
                 </div>
                 <div>
@@ -138,13 +255,22 @@ const JobDetailsModal: React.FC<JobDetailsModalProps> = ({ job, onClose }) => {
 
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Notes</h3>
-              <div className="bg-gray-50 rounded-lg p-4 min-h-[120px]">
-                {job.notes ? (
-                  <p className="text-gray-900 whitespace-pre-wrap">{job.notes}</p>
-                ) : (
-                  <p className="text-gray-500 italic">No notes added</p>
-                )}
-              </div>
+              {isEditing ? (
+                <textarea
+                  value={editedJob.notes}
+                  onChange={(e) => handleInputChange('notes', e.target.value)}
+                  className="w-full min-h-[120px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+                  placeholder="Add your notes here..."
+                />
+              ) : (
+                <div className="bg-gray-50 rounded-lg p-4 min-h-[120px]">
+                  {job.notes ? (
+                    <p className="text-gray-900 whitespace-pre-wrap">{job.notes}</p>
+                  ) : (
+                    <p className="text-gray-500 italic">No notes added</p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

@@ -218,6 +218,41 @@ const JobBoard: React.FC = () => {
     }
   };
 
+  const handleJobUpdate = async (jobId: string, updates: Partial<Job>) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/jobs/${jobId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update job: ${response.statusText}`);
+      }
+
+      const updatedJob = await response.json();
+      
+      // Update local state with the response from server
+      setJobs(prevJobs => 
+        prevJobs.map(job => 
+          job._id === jobId ? updatedJob : job
+        )
+      );
+
+      // Update selected job if it's the one being edited
+      if (selectedJob && selectedJob._id === jobId) {
+        setSelectedJob(updatedJob);
+      }
+
+      console.log('Job updated successfully');
+    } catch (error) {
+      console.error('Error updating job:', error);
+      alert(`Failed to update job: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex h-screen">
@@ -326,6 +361,7 @@ const JobBoard: React.FC = () => {
         <JobDetailsModal
           job={selectedJob}
           onClose={() => setSelectedJob(null)}
+          onSave={(updates) => handleJobUpdate(selectedJob._id, updates)}
         />
       )}
     </div>

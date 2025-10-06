@@ -98,21 +98,27 @@ router.get('/recent', async (req, res) => {
   }
 });
 
-// PATCH /api/jobs/:id - Update job status
+// PATCH /api/jobs/:id - Update job status and details
 router.patch('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, notes, dateApplied } = req.body;
-    
-    if (!status) {
-      return res.status(400).json({ error: 'Status is required' });
-    }
+    const { status, notes, dateApplied, location, salaryRange, applicationUrl } = req.body;
 
     const additionalData = {};
     if (notes !== undefined) additionalData.notes = notes;
     if (dateApplied) additionalData.dateApplied = new Date(dateApplied);
+    if (location !== undefined) additionalData.location = location;
+    if (salaryRange !== undefined) additionalData.salaryRange = salaryRange;
+    if (applicationUrl !== undefined) additionalData.applicationUrl = applicationUrl;
 
-    const updatedJob = await jobService.updateJobStatus(id, status, additionalData);
+    let updatedJob;
+    if (status) {
+      // If status is provided, use the existing updateJobStatus method
+      updatedJob = await jobService.updateJobStatus(id, status, additionalData);
+    } else {
+      // If no status, just update the job details
+      updatedJob = await jobService.updateJob(id, additionalData);
+    }
     
     const formattedJob = {
       _id: updatedJob._id.toString(),

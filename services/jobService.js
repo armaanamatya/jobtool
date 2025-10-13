@@ -87,7 +87,7 @@ class JobService {
     try {
       const jobs = await Job.find(query)
         .sort({ datePosted: -1 })
-        .limit(filters.limit || 1000);
+        .limit(filters.limit || 5000);
       
       return jobs;
     } catch (error) {
@@ -132,6 +132,31 @@ class JobService {
       return result;
     } catch (error) {
       console.error('Error getting job stats:', error.message);
+      throw error;
+    }
+  }
+
+  async updateJob(jobId, updateData = {}) {
+    await this.connectDatabase();
+    
+    try {
+      // Add lastUpdated timestamp
+      updateData.lastUpdated = new Date();
+      
+      const updatedJob = await Job.findByIdAndUpdate(
+        jobId,
+        { $set: updateData },
+        { new: true, runValidators: true }
+      );
+      
+      if (!updatedJob) {
+        throw new Error('Job not found');
+      }
+      
+      console.log(`Job updated: ${updatedJob.company} - ${updatedJob.position}`);
+      return updatedJob;
+    } catch (error) {
+      console.error('Error updating job:', error.message);
       throw error;
     }
   }

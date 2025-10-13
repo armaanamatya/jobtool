@@ -7,9 +7,10 @@ interface JobCardProps {
   job: Job;
   onStatusUpdate?: (jobId: string, newStatus: Job['status']) => void;
   onDelete?: (jobId: string, company: string, position: string) => void;
+  onClick?: () => void;
 }
 
-const JobCard: React.FC<JobCardProps> = ({ job, onStatusUpdate, onDelete }) => {
+const JobCard: React.FC<JobCardProps> = ({ job, onStatusUpdate, onDelete, onClick }) => {
   const {
     attributes,
     listeners,
@@ -54,8 +55,17 @@ const JobCard: React.FC<JobCardProps> = ({ job, onStatusUpdate, onDelete }) => {
     return colors[job.status] || 'border-gray-400';
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't trigger card click if user is dragging or clicking on buttons/links
+    if (isDragging || e.defaultPrevented) return;
+    if (onClick) {
+      onClick();
+    }
+  };
+
   const handleApplyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     if (onStatusUpdate && job.status === 'posted') {
       onStatusUpdate(job._id, 'applied');
     }
@@ -63,6 +73,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onStatusUpdate, onDelete }) => {
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     if (onDelete) {
       onDelete(job._id, job.company, job.position);
     }
@@ -74,8 +85,9 @@ const JobCard: React.FC<JobCardProps> = ({ job, onStatusUpdate, onDelete }) => {
       style={style}
       {...listeners}
       {...attributes}
-      className={`group bg-white rounded-lg shadow-sm border-2 ${getStatusColor()} p-4 cursor-grab hover:shadow-md transition-shadow ${
-        isDragging ? 'opacity-50 rotate-5' : ''
+      onClick={handleCardClick}
+      className={`group bg-white rounded-lg shadow-sm border-2 ${getStatusColor()} p-4 cursor-pointer hover:shadow-md transition-shadow ${
+        isDragging ? 'opacity-50 rotate-5 cursor-grabbing' : 'hover:cursor-pointer'
       } relative`}
     >
       {job.status === 'applied' && (

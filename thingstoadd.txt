@@ -1,0 +1,35 @@
+things to add:
+export to excel and sankey graph
+realtiem job updates (automatic on login) and for new jobs applied (maybe in swelist or not)
+scraper for swelist
+scraper for github
+design UI better (calendar, filters, swelist/github/manual/mixed)
+email links???
+
+error:
+editting job
+
+
+
+ 4. Scraper for SWEList - ✅ DONE
+  - Full SWEList email scraping implementation in services/emailScraper.js
+  - Daily automated scraping at 4:00 PM CDT via services/cronScheduler.js
+  - HTML parsing with Cheerio to extract job listings
+  - Duplicate prevention and database integration
+
+  3. Real-time job updates - ✅ PARTIALLY DONE
+  - Automatic email monitoring every 30 minutes (services/emailMonitor.js)
+  - Status updates from incoming emails (rejections, interviews, offers)
+  - Email classification and job matching
+  - Missing: Automatic updates on login 
+
+  ❌ STILL TO ADD:
+
+  1. Export to Excel and Sankey graph - ❌ NOT IMPLEMENTED (can do this easy)
+  - No Excel export functionality found
+  - No Sankey diagram visualization
+  - Listed in README as "Future Enhancements"
+
+  5. Scraper for GitHub - ❌ NOT IMPLEMENTED (can find this somewhere)
+  - No GitHub job scraping found in codebase 
+  - Only SWEList email scraping currently implemented 

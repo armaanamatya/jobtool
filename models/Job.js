@@ -128,9 +128,12 @@ const jobSchema = new mongoose.Schema({
 });
 
 // Update lastUpdated on save
+// This middleware function runs before every document save operation
+// It automatically updates the lastUpdated field with the current date and time
+// This ensures the lastUpdated timestamp is always current whenever a job document is modified
 jobSchema.pre('save', function(next) {
   this.lastUpdated = new Date();
-  next();
+  next(); // Continue with the save operation
 });
 
 module.exports = mongoose.model('Job', jobSchema);

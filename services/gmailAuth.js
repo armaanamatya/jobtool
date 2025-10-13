@@ -6,7 +6,7 @@ const fs = require('fs').promises;
 const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
 
 // Path to your OAuth2 credentials file
-const CREDENTIALS_PATH = path.join(__dirname, '..', 'client_secret_599335426572-ejt3gjd97pc0l2gjnvabto5m590d9bn3.apps.googleusercontent.com.json');
+const CREDENTIALS_PATH = path.join(__dirname, '..', 'client_secret_2_599335426572-ejt3gjd97pc0l2gjnvabto5m590d9bn3.apps.googleusercontent.com.json');
 
 // Path to store the token
 const TOKEN_PATH = path.join(__dirname, '..', 'token.json');

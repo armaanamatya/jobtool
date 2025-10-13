@@ -2,6 +2,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import StatusFilterSidebar from './StatusFilterSidebar.tsx';
 import DateFilter from './DateFilter.tsx';
 import JobCard from './JobCard.tsx';
+import JobDetailsModal from './JobDetailsModal.tsx';
+import Pagination from './Pagination.tsx';
 import { Job } from '../types';
 
 const MOCK_JOBS: Job[] = [
@@ -69,6 +71,9 @@ const JobBoard: React.FC = () => {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const jobsPerPage = 15;
 
 
   // Fetch jobs from API
@@ -98,29 +103,46 @@ const JobBoard: React.FC = () => {
     fetchJobs();
   }, []);
 
-  const filteredJobs = useMemo(() => {
+  // Filter jobs by date and search for sidebar counts (but not status)
+  const dateAndSearchFilteredJobs = useMemo(() => {
     return jobs.filter(job => {
-      const matchesStatus = selectedStatuses.includes(job.status);
-      
-      // Search filtering
       const matchesSearch = !searchQuery || 
         job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
         job.position.toLowerCase().includes(searchQuery.toLowerCase());
       
-      if (!startDate && !endDate) return matchesStatus && matchesSearch;
+      if (!startDate && !endDate) return matchesSearch;
       
-      // Use dateApplied for filtering - only filter jobs that have been applied to
-      if (!job.dateApplied) return matchesStatus && matchesSearch;
+      // Use datePosted for filtering - filter jobs by when they were posted
+      if (!job.datePosted) return matchesSearch;
       
-      const jobDate = new Date(job.dateApplied);
-      const start = startDate ? new Date(startDate) : null;
-      const end = endDate ? new Date(endDate) : null;
+      const jobDate = new Date(job.datePosted);
+      const start = startDate ? new Date(startDate + 'T00:00:00') : null;
+      const end = endDate ? new Date(endDate + 'T23:59:59') : null;
       
       const matchesDate = (!start || jobDate >= start) && (!end || jobDate <= end);
       
-      return matchesStatus && matchesSearch && matchesDate;
+      return matchesSearch && matchesDate;
     });
-  }, [jobs, selectedStatuses, startDate, endDate, searchQuery]);
+  }, [jobs, startDate, endDate, searchQuery]);
+
+  // Filter jobs by all criteria for display
+  const filteredJobs = useMemo(() => {
+    return dateAndSearchFilteredJobs.filter(job => {
+      const matchesStatus = selectedStatuses.includes(job.status);
+      return matchesStatus;
+    });
+  }, [dateAndSearchFilteredJobs, selectedStatuses]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
+  const startIndex = (currentPage - 1) * jobsPerPage;
+  const endIndex = startIndex + jobsPerPage;
+  const paginatedJobs = filteredJobs.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedStatuses, startDate, endDate, searchQuery]);
 
 
   const handleStatusToggle = (status: string) => {
@@ -216,13 +238,48 @@ const JobBoard: React.FC = () => {
     }
   };
 
+  const handleJobUpdate = async (jobId: string, updates: Partial<Job>) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/jobs/${jobId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update job: ${response.statusText}`);
+      }
+
+      const updatedJob = await response.json();
+      
+      // Update local state with the response from server
+      setJobs(prevJobs => 
+        prevJobs.map(job => 
+          job._id === jobId ? updatedJob : job
+        )
+      );
+
+      // Update selected job if it's the one being edited
+      if (selectedJob && selectedJob._id === jobId) {
+        setSelectedJob(updatedJob);
+      }
+
+      console.log('Job updated successfully');
+    } catch (error) {
+      console.error('Error updating job:', error);
+      alert(`Failed to update job: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex h-screen">
         {/* Sidebar - 20% width */}
         <div className="w-1/5 min-w-64">
           <StatusFilterSidebar
-            jobs={jobs}
+            jobs={dateAndSearchFilteredJobs}
             selectedStatuses={selectedStatuses}
             onStatusToggle={handleStatusToggle}
             onSelectAll={handleSelectAllStatuses}
@@ -288,15 +345,25 @@ const JobBoard: React.FC = () => {
             ) : (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {filteredJobs.map(job => (
+                  {paginatedJobs.map(job => (
                     <JobCard
                       key={job._id}
                       job={job}
                       onStatusUpdate={handleJobStatusUpdate}
                       onDelete={handleJobDelete}
+                      onClick={() => setSelectedJob(job)}
                     />
                   ))}
                 </div>
+                
+                {/* Pagination */}
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={filteredJobs.length}
+                  itemsPerPage={jobsPerPage}
+                  onPageChange={setCurrentPage}
+                />
                 
                 {filteredJobs.length === 0 && jobs.length > 0 && (
                   <div className="text-center py-12 text-gray-500">
@@ -317,6 +384,15 @@ const JobBoard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Job Details Modal */}
+      {selectedJob && (
+        <JobDetailsModal
+          job={selectedJob}
+          onClose={() => setSelectedJob(null)}
+          onSave={(updates) => handleJobUpdate(selectedJob._id, updates)}
+        />
+      )}
     </div>
   );
 };

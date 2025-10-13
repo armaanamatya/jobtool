@@ -20,7 +20,7 @@ const DateFilter: React.FC<DateFilterProps> = ({
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-        <h3 className="text-sm font-medium text-gray-700">Filter by Application Date:</h3>
+        <h3 className="text-sm font-medium text-gray-700">Filter by Posted Date:</h3>
         
         <div className="flex flex-col sm:flex-row gap-3 flex-1">
           <div className="flex items-center gap-2">
@@ -55,7 +55,7 @@ const DateFilter: React.FC<DateFilterProps> = ({
           <button
             onClick={onClearDates}
             disabled={!startDate && !endDate}
-            className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 hover:text-gray-900 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors border border-gray-300"
           >
             Clear Dates
           </button>

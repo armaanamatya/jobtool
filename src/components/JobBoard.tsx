@@ -4,6 +4,7 @@ import DateFilter from './DateFilter.tsx';
 import JobCard from './JobCard.tsx';
 import JobDetailsModal from './JobDetailsModal.tsx';
 import Pagination from './Pagination.tsx';
+import SankeyModal from './SankeyModal.tsx';
 import { Job } from '../types';
 
 const MOCK_JOBS: Job[] = [
@@ -73,6 +74,7 @@ const JobBoard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [showSankeyModal, setShowSankeyModal] = useState<boolean>(false);
   const jobsPerPage = 15;
 
 
@@ -284,6 +286,7 @@ const JobBoard: React.FC = () => {
             onStatusToggle={handleStatusToggle}
             onSelectAll={handleSelectAllStatuses}
             onClearAll={handleClearAllStatuses}
+            onShowSankey={() => setShowSankeyModal(true)}
           />
         </div>
         
@@ -391,6 +394,14 @@ const JobBoard: React.FC = () => {
           job={selectedJob}
           onClose={() => setSelectedJob(null)}
           onSave={(updates) => handleJobUpdate(selectedJob._id, updates)}
+        />
+      )}
+
+      {/* Sankey Modal */}
+      {showSankeyModal && (
+        <SankeyModal
+          jobs={dateAndSearchFilteredJobs}
+          onClose={() => setShowSankeyModal(false)}
         />
       )}
     </div>
